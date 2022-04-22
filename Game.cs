@@ -1,10 +1,16 @@
 using Godot;
 using System;
+using System.Collections.Generic;
 using Util;
 using Libplanet;
 using Libplanet.Action;
 using Libplanet.Blocks;
+using Libplanet.Blockchain;
+using Libplanet.Blockchain.Policies;
+using Libplanet.Blockchain.Renderers;
 using Libplanet.Crypto;
+using Libplanet.Store;
+using Libplanet.Store.Trie;
 
 public class Game : Node2D
 {
@@ -28,6 +34,29 @@ public class Game : Node2D
             $"Loaded private key address: {new Address(privateKey.PublicKey).ToHex()}");
         GD.Print(
             $"Loaded genesis block hash: {genesis.Hash}");
+
+        string storePath = helper.GetStorePath();
+        string stateStorePath = helper.GetStateStorePath();
+        IStore store = new DefaultStore(storePath);
+        IStateStore stateStore = new TrieStateStore(
+            new DefaultKeyValueStore(stateStorePath));
+
+        IBlockPolicy<PolymorphicAction<ActionBase>> blockPolicy
+            = helper.GetBlockPolicy();
+        IStagePolicy<PolymorphicAction<ActionBase>> stagePolicy
+            = helper.GetStagePolicy();
+        IEnumerable<IRenderer<PolymorphicAction<ActionBase>>> renderers
+            = helper.GetRenderers();
+        BlockChain<PolymorphicAction<ActionBase>> blockChain
+            = new BlockChain<PolymorphicAction<ActionBase>>(
+                policy: blockPolicy,
+                stagePolicy: stagePolicy,
+                store: store,
+                stateStore: stateStore,
+                genesisBlock: genesis,
+                renderers: renderers);
+        GD.Print($"Loaded blockchain tip index: {blockChain.Tip.Index}");
+        GD.Print($"Loaded blockchain tip hash: {blockChain.Tip.Hash}");
     }
 
 //  // Called every frame. 'delta' is the elapsed time since the previous frame.

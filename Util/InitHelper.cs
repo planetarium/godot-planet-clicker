@@ -1,10 +1,13 @@
 using Godot;
 using System;
+using System.Collections.Generic;
 using System.Security.Cryptography;
 using Bencodex;
 using Libplanet;
 using Libplanet.Action;
 using Libplanet.Blocks;
+using Libplanet.Blockchain.Policies;
+using Libplanet.Blockchain.Renderers;
 using Libplanet.Crypto;
 
 namespace Util
@@ -57,5 +60,32 @@ namespace Util
                 HashAlgorithmGetter,
                 (Bencodex.Types.Dictionary)_codec.Decode(
                     System.IO.File.ReadAllBytes(FileManager.GenesisBlockPath)));
+
+        public string GetStorePath()
+            => FileManager.StorePath;
+
+        public string GetStateStorePath()
+            => FileManager.StateStorePath;
+
+        public IBlockPolicy<PolymorphicAction<ActionBase>> GetBlockPolicy()
+            => new BlockPolicy<PolymorphicAction<ActionBase>>(
+                blockAction: null,
+                blockInterval: TimeSpan.FromSeconds(10),
+                difficultyStability: 1024,
+                minimumDifficulty: 10_000);
+
+        public IStagePolicy<PolymorphicAction<ActionBase>> GetStagePolicy()
+            => new VolatileStagePolicy<PolymorphicAction<ActionBase>>();
+
+        public IEnumerable<IRenderer<PolymorphicAction<ActionBase>>> GetRenderers()
+        {
+            return new List<IRenderer<PolymorphicAction<ActionBase>>>()
+            {
+                new AnonymousActionRenderer<PolymorphicAction<ActionBase>>()
+                {
+                    ActionRenderer = (action, ctx, nextStates) => { }
+                }
+            };
+        }
     }
 }
