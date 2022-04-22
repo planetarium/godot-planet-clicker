@@ -9,6 +9,7 @@ using Libplanet.Blockchain;
 using Libplanet.Blockchain.Policies;
 using Libplanet.Blockchain.Renderers;
 using Libplanet.Crypto;
+using Libplanet.Net;
 using Libplanet.Store;
 using Libplanet.Store.Trie;
 
@@ -57,6 +58,26 @@ public class Game : Node2D
                 renderers: renderers);
         GD.Print($"Loaded blockchain tip index: {blockChain.Tip.Index}");
         GD.Print($"Loaded blockchain tip hash: {blockChain.Tip.Hash}");
+
+        string host = helper.GetHost();
+        int port = helper.GetPort();
+        IEnumerable<IceServer> iceServers = helper.GetIceServers();
+        AppProtocolVersion appProtocolVersion
+            = helper.GetAppProtocolVersion();
+        IEnumerable<PublicKey> trustedAppProtocolVersionSigners
+            = helper.GetTrustedAppProtocolVersionSigners();
+        DifferentAppProtocolVersionEncountered differentAppProtocolVersionEncountered
+            = helper.GetDifferentAppProtocolVersionEncountered();
+        Swarm<PolymorphicAction<ActionBase>> swarm = new Swarm<PolymorphicAction<ActionBase>>(
+                    blockChain: blockChain,
+                    privateKey: privateKey,
+                    host: host,
+                    listenPort: port,
+                    iceServers: iceServers,
+                    appProtocolVersion: appProtocolVersion,
+                    trustedAppProtocolVersionSigners: trustedAppProtocolVersionSigners,
+                    differentAppProtocolVersionEncountered: differentAppProtocolVersionEncountered);
+        GD.Print("Swarm instance created");
     }
 
 //  // Called every frame. 'delta' is the elapsed time since the previous frame.

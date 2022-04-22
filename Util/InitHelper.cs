@@ -9,6 +9,7 @@ using Libplanet.Blocks;
 using Libplanet.Blockchain.Policies;
 using Libplanet.Blockchain.Renderers;
 using Libplanet.Crypto;
+using Libplanet.Net;
 
 namespace Util
 {
@@ -87,5 +88,24 @@ namespace Util
                 }
             };
         }
+
+        public string GetHost()
+            => "0.0.0.0";
+
+        public int GetPort()
+            => 12345;
+
+        public IEnumerable<IceServer> GetIceServers()
+            => new List<IceServer>();
+
+        public AppProtocolVersion GetAppProtocolVersion()
+            => default;
+
+        public IEnumerable<PublicKey> GetTrustedAppProtocolVersionSigners()
+            => new List<PublicKey>();
+
+        public DifferentAppProtocolVersionEncountered GetDifferentAppProtocolVersionEncountered()
+            => (peer, peerVersion, localVersion)
+                => GD.Print("Different app protocol version encountered");
     }
 }
