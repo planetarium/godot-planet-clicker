@@ -1,6 +1,10 @@
 using Godot;
 using System;
 using Util;
+using Libplanet;
+using Libplanet.Action;
+using Libplanet.Blocks;
+using Libplanet.Crypto;
 
 public class Game : Node2D
 {
@@ -16,6 +20,14 @@ public class Game : Node2D
         GD.Print($"Private key path: {FileManager.PrivateKeyPath}");
         GD.Print($"Store path: {FileManager.StorePath}");
         GD.Print($"State store path: {FileManager.StateStorePath}");
+
+        InitHelper helper = new InitHelper();
+        PrivateKey privateKey = helper.GetPrivateKey();
+        Block<PolymorphicAction<ActionBase>> genesis = helper.GetGenesis();
+        GD.Print(
+            $"Loaded private key address: {new Address(privateKey.PublicKey).ToHex()}");
+        GD.Print(
+            $"Loaded genesis block hash: {genesis.Hash}");
     }
 
 //  // Called every frame. 'delta' is the elapsed time since the previous frame.
