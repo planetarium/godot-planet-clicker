@@ -34,7 +34,7 @@ public class Monster : Area2D
             && (ButtonList)iemb.ButtonIndex == ButtonList.Left)
         {
             GD.Print($"Monster clicked");
-            ActionWrapper action = new ActionWrapper(new AddCount(1L));
+            ActionWrapper action = new ActionWrapper(new AddCount());
             EmitSignal(nameof(ClickSignal), action);
         }
     }
