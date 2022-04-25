@@ -2,7 +2,7 @@ using Bencodex.Types;
 using Libplanet;
 using Libplanet.Action;
 
-namespace Util
+namespace Script.Util
 {
     public static class AccountStateDeltaExtensions
     {

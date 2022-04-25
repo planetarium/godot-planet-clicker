@@ -4,7 +4,7 @@ using System.Linq;
 using Bencodex.Types;
 using Libplanet;
 
-namespace State
+namespace Script.State
 {
     public class RankingInfo
     {

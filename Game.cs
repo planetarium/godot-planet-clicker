@@ -2,8 +2,6 @@ using Godot;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using Util;
 using Libplanet;
 using Libplanet.Action;
 using Libplanet.Blocks;
@@ -16,6 +14,8 @@ using Libplanet.Net.Protocols;
 using Libplanet.Store;
 using Libplanet.Store.Trie;
 using Libplanet.Tx;
+using Script.Action;
+using Script.Util;
 
 public class Game : Node2D
 {

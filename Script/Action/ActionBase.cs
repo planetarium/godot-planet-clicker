@@ -2,7 +2,7 @@ using System;
 using Bencodex.Types;
 using Libplanet.Action;
 
-namespace Util
+namespace Script.Action
 {
     [Serializable]
     public abstract class ActionBase : IAction

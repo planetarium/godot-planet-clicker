@@ -1,7 +1,7 @@
 using System;
 using Libplanet;
 
-namespace State
+namespace Script.State
 {
     [Serializable]
     public abstract class State

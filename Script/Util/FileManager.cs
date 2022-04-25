@@ -1,6 +1,6 @@
 using Godot;
 
-namespace Util
+namespace Script.Util
 {
     public static class FileManager
     {

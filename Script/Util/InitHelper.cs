@@ -10,8 +10,9 @@ using Libplanet.Blockchain.Policies;
 using Libplanet.Blockchain.Renderers;
 using Libplanet.Crypto;
 using Libplanet.Net;
+using Script.Action;
 
-namespace Util
+namespace Script.Util
 {
     public class InitHelper
     {
