@@ -22,6 +22,10 @@ public class Game : Node2D
     // Declare member variables here. Examples:
     // private int a = 2;
     // private string b = "text";
+    private PrivateKey _privateKey;
+    private Address _address;
+    private BlockChain<PolymorphicAction<ActionBase>> _blockChain;
+    private Area2D _monster;
 
     // Called when the node enters the scene tree for the first time.
     public override async void _Ready()
@@ -33,11 +37,11 @@ public class Game : Node2D
         GD.Print($"State store path: {FileManager.StateStorePath}");
 
         InitHelper helper = new InitHelper();
-        PrivateKey privateKey = helper.GetPrivateKey();
-        Address address = new Address(privateKey.PublicKey);
+        _privateKey = helper.GetPrivateKey();
+        _address = new Address(_privateKey.PublicKey);
         Block<PolymorphicAction<ActionBase>> genesis = helper.GetGenesis();
         GD.Print(
-            $"Loaded private key address: {address}");
+            $"Loaded private key address: {_address}");
         GD.Print(
             $"Loaded genesis block hash: {genesis.Hash}");
 
@@ -53,7 +57,7 @@ public class Game : Node2D
             = helper.GetStagePolicy();
         IEnumerable<IRenderer<PolymorphicAction<ActionBase>>> renderers
             = helper.GetRenderers();
-        BlockChain<PolymorphicAction<ActionBase>> blockChain
+        _blockChain
             = new BlockChain<PolymorphicAction<ActionBase>>(
                 policy: blockPolicy,
                 stagePolicy: stagePolicy,
@@ -61,8 +65,8 @@ public class Game : Node2D
                 stateStore: stateStore,
                 genesisBlock: genesis,
                 renderers: renderers);
-        GD.Print($"Loaded blockchain tip index: {blockChain.Tip.Index}");
-        GD.Print($"Loaded blockchain tip hash: {blockChain.Tip.Hash}");
+        GD.Print($"Loaded blockchain tip index: {_blockChain.Tip.Index}");
+        GD.Print($"Loaded blockchain tip hash: {_blockChain.Tip.Hash}");
 
         string host = helper.GetHost();
         int port = helper.GetPort();
@@ -74,8 +78,8 @@ public class Game : Node2D
         DifferentAppProtocolVersionEncountered differentAppProtocolVersionEncountered
             = helper.GetDifferentAppProtocolVersionEncountered();
         Swarm<PolymorphicAction<ActionBase>> swarm = new Swarm<PolymorphicAction<ActionBase>>(
-                    blockChain: blockChain,
-                    privateKey: privateKey,
+                    blockChain: _blockChain,
+                    privateKey: _privateKey,
                     host: host,
                     listenPort: port,
                     iceServers: iceServers,
@@ -117,14 +121,18 @@ public class Game : Node2D
         GD.Print("Waiting for swarm running state");
         await swarm.WaitForRunningAsync();
         GD.Print(
-            $"Swarm started with address {ByteUtil.Hex(privateKey.PublicKey.Format(true))}"
+            $"Swarm started with address {ByteUtil.Hex(_privateKey.PublicKey.Format(true))}"
             + $",{host},{port}");
+
+        _monster = GetNode<Monster>("./Node2D/Monster");
+        _monster.Connect(nameof(Monster.ClickSignal), this, nameof(ClickCallback));
+        GD.Print("Game node connected to monster node");
 
         while (true)
         {
             var txs = new HashSet<Transaction<PolymorphicAction<ActionBase>>>();
 
-            Block<PolymorphicAction<ActionBase>> block = await blockChain.MineBlock(privateKey);
+            Block<PolymorphicAction<ActionBase>> block = await _blockChain.MineBlock(_privateKey);
             GD.Print(
                 $"Mined a block:");
             GD.Print($"\tindex: {block.Index}");
@@ -141,4 +149,26 @@ public class Game : Node2D
 //  {
 //
 //  }
+
+    public void MakeTransaction(IEnumerable<ActionBase> gameActions)
+    {
+        var actions = gameActions.Select(gameAction => (PolymorphicAction<ActionBase>)gameAction).ToList();
+        _ = MakeTransaction(actions, true);
+    }
+
+    private Transaction<PolymorphicAction<ActionBase>> MakeTransaction(
+                IEnumerable<PolymorphicAction<ActionBase>> actions, bool broadcast)
+    {
+        var polymorphicActions = actions.ToArray();
+        GD.Print(
+            $"Making trasaction with actions "
+            + $"[{string.Join(", ", polymorphicActions.Select(i => i.InnerAction))}]");
+        return _blockChain.MakeTransaction(_privateKey, polymorphicActions);
+    }
+
+    public void ClickCallback(ActionWrapper action)
+    {
+        GD.Print("Click received from monster");
+        MakeTransaction(new List<ActionBase>() { action.Action });
+    }
 }

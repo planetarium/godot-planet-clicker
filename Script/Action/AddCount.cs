@@ -11,10 +11,6 @@ namespace Script.Action
     {
         private long _count;
 
-        public AddCount()
-        {
-        }
-
         public AddCount(long count)
         {
             _count = count;
