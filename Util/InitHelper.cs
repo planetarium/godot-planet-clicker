@@ -73,7 +73,7 @@ namespace Util
                 blockAction: null,
                 blockInterval: TimeSpan.FromSeconds(10),
                 difficultyStability: 1024,
-                minimumDifficulty: 10_000);
+                minimumDifficulty: 100_000);
 
         public IStagePolicy<PolymorphicAction<ActionBase>> GetStagePolicy()
             => new VolatileStagePolicy<PolymorphicAction<ActionBase>>();
