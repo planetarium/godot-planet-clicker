@@ -1,10 +1,8 @@
 using Godot;
 using System;
-using System.Collections.Generic;
-using Libplanet;
 using Script.Action;
 
-public class Monster : Area2D
+public class MonsterArea2D : Area2D
 {
     [Signal]
     public delegate void ClickSignal(ActionWrapper action);
@@ -12,7 +10,6 @@ public class Monster : Area2D
     // Declare member variables here. Examples:
     // private int a = 2;
     // private string b = "text";
-    private Dictionary<Address, int> _attacks = new Dictionary<Address, int>();
 
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()

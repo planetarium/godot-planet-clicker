@@ -2,7 +2,7 @@ using Godot;
 using System;
 using System.Numerics;
 
-public class Score : Label
+public class ScoreBoardLabel : Label
 {
     // Declare member variables here. Examples:
     // private int a = 2;

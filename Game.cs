@@ -27,8 +27,8 @@ public class Game : Node2D
     private PrivateKey _privateKey;
     private Address _address;
     private BlockChain<PolymorphicAction<ActionBase>> _blockChain;
-    private Area2D _monster;
-    private Score _score;
+    private Area2D _monsterArea2D;
+    private ScoreBoardLabel _scoreBoardLabel;
 
     // Called when the node enters the scene tree for the first time.
     public override async void _Ready()
@@ -39,8 +39,9 @@ public class Game : Node2D
         GD.Print($"Store path: {FileManager.StorePath}");
         GD.Print($"State store path: {FileManager.StateStorePath}");
 
-        _monster = GetNode<Monster>("./Node2D/Monster");
-        _score = GetNode<Score>("./Score/Label");
+        _monsterArea2D = GetNode<MonsterArea2D>("./Monster/Area2D");
+        _scoreBoardLabel = GetNode<ScoreBoardLabel>("./ScoreBoard/Label");
+        GD.Print($"Nodes {_monsterArea2D} and {_scoreBoardLabel} loaded");
 
         InitHelper helper = new InitHelper();
         _privateKey = helper.GetPrivateKey();
@@ -62,7 +63,7 @@ public class Game : Node2D
         IStagePolicy<PolymorphicAction<ActionBase>> stagePolicy
             = helper.GetStagePolicy();
         IEnumerable<IRenderer<PolymorphicAction<ActionBase>>> renderers
-            = helper.GetRenderers(_score.Update);
+            = helper.GetRenderers(_scoreBoardLabel.Update);
         _blockChain
             = new BlockChain<PolymorphicAction<ActionBase>>(
                 policy: blockPolicy,
@@ -142,10 +143,10 @@ public class Game : Node2D
             $"Swarm started with address {ByteUtil.Hex(_privateKey.PublicKey.Format(true))}"
             + $",{host},{port}");
 
-        _monster.Connect(nameof(Monster.ClickSignal), this, nameof(ClickCallback));
-        _score.Update(count);
-
+        _monsterArea2D.Connect(nameof(MonsterArea2D.ClickSignal), this, nameof(ClickCallback));
+        _scoreBoardLabel.Update(count);
         GD.Print("Game node connected to monster node");
+        GD.Print("Initial score updated");
 
         while (true)
         {
