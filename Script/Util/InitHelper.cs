@@ -1,6 +1,7 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.Numerics;
 using System.Security.Cryptography;
 using Bencodex;
 using Libplanet;
@@ -79,13 +80,19 @@ namespace Script.Util
         public IStagePolicy<PolymorphicAction<ActionBase>> GetStagePolicy()
             => new VolatileStagePolicy<PolymorphicAction<ActionBase>>();
 
-        public IEnumerable<IRenderer<PolymorphicAction<ActionBase>>> GetRenderers()
+        public IEnumerable<IRenderer<PolymorphicAction<ActionBase>>> GetRenderers(Action<BigInteger> callback)
         {
             return new List<IRenderer<PolymorphicAction<ActionBase>>>()
             {
                 new AnonymousActionRenderer<PolymorphicAction<ActionBase>>()
                 {
-                    ActionRenderer = (action, ctx, nextStates) => { }
+                    ActionRenderer = (action, ctx, nextStates) =>
+                    {
+                        if (nextStates.GetState(ctx.Signer) is Bencodex.Types.Integer nextCount)
+                        {
+                            callback(nextCount.Value);
+                        }
+                    }
                 }
             };
         }
