@@ -2,6 +2,8 @@ using Godot;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
+using Bencodex;
 using Libplanet;
 using Libplanet.Action;
 using Libplanet.Blocks;
@@ -26,6 +28,7 @@ public class Game : Node2D
     private Address _address;
     private BlockChain<PolymorphicAction<ActionBase>> _blockChain;
     private Area2D _monster;
+    private Score _score;
 
     // Called when the node enters the scene tree for the first time.
     public override async void _Ready()
@@ -35,6 +38,9 @@ public class Game : Node2D
         GD.Print($"Private key path: {FileManager.PrivateKeyPath}");
         GD.Print($"Store path: {FileManager.StorePath}");
         GD.Print($"State store path: {FileManager.StateStorePath}");
+
+        _monster = GetNode<Monster>("./Node2D/Monster");
+        _score = GetNode<Score>("./Score/Label");
 
         InitHelper helper = new InitHelper();
         _privateKey = helper.GetPrivateKey();
@@ -56,7 +62,7 @@ public class Game : Node2D
         IStagePolicy<PolymorphicAction<ActionBase>> stagePolicy
             = helper.GetStagePolicy();
         IEnumerable<IRenderer<PolymorphicAction<ActionBase>>> renderers
-            = helper.GetRenderers();
+            = helper.GetRenderers(_score.Update);
         _blockChain
             = new BlockChain<PolymorphicAction<ActionBase>>(
                 policy: blockPolicy,
@@ -67,6 +73,18 @@ public class Game : Node2D
                 renderers: renderers);
         GD.Print($"Loaded blockchain tip index: {_blockChain.Tip.Index}");
         GD.Print($"Loaded blockchain tip hash: {_blockChain.Tip.Hash}");
+        Bencodex.Types.IValue state = _blockChain.GetState(_address);
+        BigInteger count;
+        if (state is Bencodex.Types.Integer bti)
+        {
+            count = bti.Value;
+            GD.Print($"Loaded state for {_address}: {count}");
+        }
+        else
+        {
+            count = 0;
+            GD.Print($"No saved state found for {_address}");
+        }
 
         string host = helper.GetHost();
         int port = helper.GetPort();
@@ -124,8 +142,9 @@ public class Game : Node2D
             $"Swarm started with address {ByteUtil.Hex(_privateKey.PublicKey.Format(true))}"
             + $",{host},{port}");
 
-        _monster = GetNode<Monster>("./Node2D/Monster");
         _monster.Connect(nameof(Monster.ClickSignal), this, nameof(ClickCallback));
+        _score.Update(count);
+
         GD.Print("Game node connected to monster node");
 
         while (true)

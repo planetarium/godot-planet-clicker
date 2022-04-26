@@ -1,8 +1,9 @@
-[gd_scene load_steps=5 format=2]
+[gd_scene load_steps=6 format=2]
 
 [ext_resource path="res://Game.cs" type="Script" id=1]
 [ext_resource path="res://Asset/monster.png" type="Texture" id=2]
 [ext_resource path="res://Monster.cs" type="Script" id=3]
+[ext_resource path="res://Score.cs" type="Script" id=4]
 
 [sub_resource type="CircleShape2D" id=1]
 
@@ -21,3 +22,11 @@ texture = ExtResource( 2 )
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/Monster"]
 scale = Vector2( 3, 3 )
 shape = SubResource( 1 )
+
+[node name="Score" type="Node2D" parent="."]
+
+[node name="Label" type="Label" parent="Score"]
+margin_left = 546.0
+margin_right = 1024.0
+margin_bottom = 100.0
+script = ExtResource( 4 )
